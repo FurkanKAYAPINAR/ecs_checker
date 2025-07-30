@@ -1,45 +1,29 @@
-import dns.message
-import dns.query
-import dns.name
-import dns.edns
-import dns.resolver
+import subprocess
+import re
 import sys
+#FurkanKAYAPINAR
+#CVE-2025-40766
 
-def check_ecs_support(domain):
+def check_ecs_support(dns_ip):
     try:
-        resolver = dns.resolver.Resolver()
-        resolver.timeout = 3
-        resolver.lifetime = 5
-
-        # Use one of the public resolvers to make a test (Google DNS)
-        nameserver = "8.8.8.8"
-
-        query = dns.message.make_query(domain, dns.rdatatype.A)
-
-        # Add EDNS0 option for ECS
-        subnet_option = dns.edns.ECSOption(address="192.0.2.0", srclen=24)
-        query.use_edns(options=[subnet_option])
-
-        response = dns.query.udp(query, nameserver, timeout=5)
-
-        ecs_supported = any(
-            isinstance(opt, dns.edns.ECSOption)
-            for opt in response.options
+        result = subprocess.run(
+            ["dig", f"google.com", f"@{dns_ip}", "+subnet=0.0.0.0/0"],
+            capture_output=True, text=True, timeout=5
         )
+        output = result.stdout
 
-        if ecs_supported:
-            print(f"[+] {domain} supports EDNS Client Subnet (ECS).")
+        if "CLIENT-SUBNET" in output:
+            print(f"[+] {dns_ip} supports ECS (CLIENT-SUBNET found).")
         else:
-            print(f"[-] {domain} does NOT support EDNS Client Subnet (ECS).")
+            print(f"[-] {dns_ip} does NOT support ECS (CLIENT-SUBNET not found).")
 
+    except subprocess.TimeoutExpired:
+        print(f"[!] Timeout while querying {dns_ip}")
     except Exception as e:
-        print(f"[!] Error testing {domain}: {e}")
-
+        print(f"[!] Error querying {dns_ip}: {e}")
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: python ecs_detector.py <domain>")
-        sys.exit(1)
-
-    domain = sys.argv[1]
-    check_ecs_support(domain)
+    if len(sys.argv) < 2:
+        print("Usage: python ecs_dig_check.py <dns_ip>")
+    else:
+        check_ecs_support(sys.argv[1])

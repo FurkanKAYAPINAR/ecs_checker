@@ -1,4 +1,4 @@
-""" #EDNS Client Subnet (ECS) Remote Detection Tool - CVE-2025-40766
+EDNS Client Subnet (ECS) Remote Detection Tool - CVE-2025-40766
 
 This tool checks whether a remote DNS resolver supports **EDNS Client Subnet (ECS)** — a DNS extension that may expose systems to cache poisoning or information leakage vulnerabilities such as **CVE-2025-40766**.
 

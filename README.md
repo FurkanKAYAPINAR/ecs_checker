@@ -1,16 +1,23 @@
 # EDNS Client Subnet (ECS) Remote Detection Tool - CVE-2025-40766
 
-This tool checks whether a remote DNS resolver supports **EDNS Client Subnet (ECS)** — a DNS extension that could expose systems to cache poisoning or information leakage vulnerabilities such as **CVE-2025-40776**.
+This tool checks whether a remote DNS resolver supports EDNS Client Subnet (ECS) — a DNS extension that may expose systems to cache poisoning or information leakage vulnerabilities such as CVE-2025-40766.
 
-## 🔍 What It Does
+🔍 What It Does
+	•	Sends a DNS query with an ECS option
+	•	Detects whether ECS is enabled on the target DNS resolver
+	•	Compatible with both Linux/macOS (Python) and Windows (PowerShell)
 
-- Sends a DNS query with ECS options
-- Detects whether ECS is enabled on the target resolver
-- Works on both Linux/macOS (Python) and Windows (PowerShell)
+💻 Usage (Python)
 
-## 💻 Usage
+Install dependencies:
+pip3 install -r requirements.txt
 
-### Python (Linux/macOS)
-```bash
-pip install -r requirements.txt
-python3 ecs_check.py --domain example.com --dns 8.8.8.8
+Run the script:
+python3 ecs_checker.py <DNS_SERVER_IP>
+
+Examples:
+python3 ecs_checker.py 1.1.1.1
+[-] 1.1.1.1 does NOT support ECS (CLIENT-SUBNET not found).
+
+python3 ecs_checker.py 8.8.8.8
+[+] 8.8.8.8 supports ECS (CLIENT-SUBNET found).
